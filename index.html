@@ -1,0 +1,2475 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwNTgwODM5MjMyMTI1Njg3MjQ0NiIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjX2RmN2I5MWI5N2NkNmI2ODdfaW5kZXguaHRtbC03NDAifSwiZXhwIjoxNzk1MTcxODgzLCJpYXQiOjE3OTUxNjgyODMsImFsZyI6IlJTMjU2In0.Y7aoWcCtXgk4M865lrkJB-woAaY6Qea7JWpAplqd9cPLN7FA3vLlYL7GShezkubx3hda0MDKwHXjp9TT7xQBSC0bMZEGFFwbLDR67NkkqXaetevEIgL9pmmgrMmStwEoYbh7QWpunoJgntsPxLice3I8RKY8OoEA5HTBdDI4UQQpwsNmaYR4iid5wEbN-UyhP6ci6Mf_J2fBu3Q2EnBeBopt4hPfUJm2I8YgLL-FlYdGKtsqwrOX_hbKX5Uh3Arl4HA9IJ7nejGOTQyS2Id-OuZYpHMXHAXcuRcBbCm3QSVcj9DD0UZ-eYLMISwQPbYthtLHRWR6sXbtTgvegyYnYw","c_df7b91b97cd6b687_index.html-740")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>الصياد - منتجات طبيعية وأورجانيك</title>
+  <!-- تحميل خط Cairo العربي الاحترافي -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <!-- تحميل Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Cairo', 'sans-serif'],
+          },
+          colors: {
+            olive: {
+              50: '#f4f7f2',
+              100: '#e5ece0',
+              200: '#cbd9c2',
+              600: '#3d6b35',
+              700: '#2d5a27',
+              800: '#23471f',
+              900: '#193316',
+            },
+            amberGold: {
+              400: '#e0a943',
+              500: '#c88a2b',
+              600: '#a8701d',
+            },
+            ivory: '#faf8f3'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: #faf8f3;
+      color: #1f291c;
+      overflow-x: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-pop {
+      animation: popIn 0.2s ease-out forwards;
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Cairo, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.-right-1\.5{right:-0.375rem}.-top-1\.5{top:-0.375rem}.bottom-0{bottom:0px}.left-0{left:0px}.left-1\/2{left:50%}.right-0{right:0px}.right-3{right:0.75rem}.top-0{top:0px}.top-2\.5{top:0.625rem}.top-20{top:5rem}.z-30{z-index:30}.z-50{z-index:50}.z-\[55\]{z-index:55}.z-\[60\]{z-index:60}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:0.25rem}.mb-1\.5{margin-bottom:0.375rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-1\.5{margin-top:0.375rem}.mt-2\.5{margin-top:0.625rem}.mt-3{margin-top:0.75rem}.mt-3\.5{margin-top:0.875rem}.mt-4{margin-top:1rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-12{height:3rem}.h-14{height:3.5rem}.h-16{height:4rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-7{height:1.75rem}.h-20{height:5rem}.max-h-\[92vh\]{max-height:92vh}.max-h-\[94vh\]{max-height:94vh}.w-12{width:3rem}.w-14{width:3.5rem}.w-16{width:4rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-7{width:1.75rem}.w-\[90\%\]{width:90%}.w-full{width:100%}.w-20{width:5rem}.max-w-5xl{max-width:64rem}.max-w-sm{max-width:24rem}.max-w-xs{max-width:20rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-75{--tw-scale-x:.75;--tw-scale-y:.75;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;user-select:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-2\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.625rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.self-end{align-self:flex-end}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.whitespace-nowrap{white-space:nowrap}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-xl{border-radius:0.75rem}.rounded-md{border-radius:0.375rem}.rounded-lg{border-radius:0.5rem}.rounded-t-3xl{border-top-left-radius:1.5rem;border-top-right-radius:1.5rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amberGold-400{--tw-border-opacity:1;border-color:rgb(224 169 67 / var(--tw-border-opacity, 1))}.border-amberGold-400\/50{border-color:rgb(224 169 67 / 0.5)}.border-amberGold-500\/40{border-color:rgb(200 138 43 / 0.4)}.border-amberGold-500\/50{border-color:rgb(200 138 43 / 0.5)}.border-gray-100{--tw-border-opacity:1;border-color:rgb(243 244 246 / var(--tw-border-opacity, 1))}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.border-gray-300{--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.border-olive-100{--tw-border-opacity:1;border-color:rgb(229 236 224 / var(--tw-border-opacity, 1))}.border-olive-200{--tw-border-opacity:1;border-color:rgb(203 217 194 / var(--tw-border-opacity, 1))}.border-olive-600{--tw-border-opacity:1;border-color:rgb(61 107 53 / var(--tw-border-opacity, 1))}.border-olive-700{--tw-border-opacity:1;border-color:rgb(45 90 39 / var(--tw-border-opacity, 1))}.border-olive-800{--tw-border-opacity:1;border-color:rgb(35 71 31 / var(--tw-border-opacity, 1))}.bg-\[\#1ea851\]{--tw-bg-opacity:1;background-color:rgb(30 168 81 / var(--tw-bg-opacity, 1))}.bg-amberGold-500{--tw-bg-opacity:1;background-color:rgb(200 138 43 / var(--tw-bg-opacity, 1))}.bg-black\/60{background-color:rgb(0 0 0 / 0.6)}.bg-black\/70{background-color:rgb(0 0 0 / 0.7)}.bg-gray-100{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1))}.bg-gray-50{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity, 1))}.bg-ivory{--tw-bg-opacity:1;background-color:rgb(250 248 243 / var(--tw-bg-opacity, 1))}.bg-olive-100{--tw-bg-opacity:1;background-color:rgb(229 236 224 / var(--tw-bg-opacity, 1))}.bg-olive-50{--tw-bg-opacity:1;background-color:rgb(244 247 242 / var(--tw-bg-opacity, 1))}.bg-olive-700{--tw-bg-opacity:1;background-color:rgb(45 90 39 / var(--tw-bg-opacity, 1))}.bg-olive-800{--tw-bg-opacity:1;background-color:rgb(35 71 31 / var(--tw-bg-opacity, 1))}.bg-olive-900{--tw-bg-opacity:1;background-color:rgb(25 51 22 / var(--tw-bg-opacity, 1))}.bg-olive-900\/70{background-color:rgb(25 51 22 / 0.7)}.bg-red-100{--tw-bg-opacity:1;background-color:rgb(254 226 226 / var(--tw-bg-opacity, 1))}.bg-red-600{--tw-bg-opacity:1;background-color:rgb(220 38 38 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-lime-50{--tw-bg-opacity:1;background-color:rgb(247 254 231 / var(--tw-bg-opacity, 1))}.bg-orange-50{--tw-bg-opacity:1;background-color:rgb(255 247 237 / var(--tw-bg-opacity, 1))}.bg-yellow-50{--tw-bg-opacity:1;background-color:rgb(254 252 232 / var(--tw-bg-opacity, 1))}.fill-current{fill:currentColor}.object-cover{object-fit:cover}.p-0{padding:0px}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-12{padding-top:3rem;padding-bottom:3rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-3\.5{padding-top:0.875rem;padding-bottom:0.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pb-2{padding-bottom:0.5rem}.pb-28{padding-bottom:7rem}.pl-4{padding-left:1rem}.pr-10{padding-right:2.5rem}.pt-1{padding-top:0.25rem}.pt-2{padding-top:0.5rem}.pt-4{padding-top:1rem}.pt-3{padding-top:0.75rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-sans{font-family:Cairo, sans-serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-semibold{font-weight:600}.leading-snug{line-height:1.375}.leading-relaxed{line-height:1.625}.tracking-\[0\.5em\]{letter-spacing:0.5em}.tracking-wide{letter-spacing:0.025em}.text-amberGold-400{--tw-text-opacity:1;color:rgb(224 169 67 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-olive-100{--tw-text-opacity:1;color:rgb(229 236 224 / var(--tw-text-opacity, 1))}.text-olive-200{--tw-text-opacity:1;color:rgb(203 217 194 / var(--tw-text-opacity, 1))}.text-olive-700{--tw-text-opacity:1;color:rgb(45 90 39 / var(--tw-text-opacity, 1))}.text-olive-800{--tw-text-opacity:1;color:rgb(35 71 31 / var(--tw-text-opacity, 1))}.text-olive-900{--tw-text-opacity:1;color:rgb(25 51 22 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.text-red-700{--tw-text-opacity:1;color:rgb(185 28 28 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.placeholder-olive-200\/75::placeholder{color:rgb(203 217 194 / 0.75)}.shadow{--tw-shadow:0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_-4px_20px_rgba\(0\2c 0\2c 0\2c 0\.08\)\]{--tw-shadow:0 -4px 20px rgba(0,0,0,0.08);--tw-shadow-colored:0 -4px 20px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:bg-\[\#199145\]:hover{--tw-bg-opacity:1;background-color:rgb(25 145 69 / var(--tw-bg-opacity, 1))}.hover\:bg-amberGold-600:hover{--tw-bg-opacity:1;background-color:rgb(168 112 29 / var(--tw-bg-opacity, 1))}.hover\:bg-gray-200:hover{--tw-bg-opacity:1;background-color:rgb(229 231 235 / var(--tw-bg-opacity, 1))}.hover\:bg-olive-600:hover{--tw-bg-opacity:1;background-color:rgb(61 107 53 / var(--tw-bg-opacity, 1))}.hover\:bg-olive-700:hover{--tw-bg-opacity:1;background-color:rgb(45 90 39 / var(--tw-bg-opacity, 1))}.hover\:bg-olive-800:hover{--tw-bg-opacity:1;background-color:rgb(35 71 31 / var(--tw-bg-opacity, 1))}.hover\:bg-red-700:hover{--tw-bg-opacity:1;background-color:rgb(185 28 28 / var(--tw-bg-opacity, 1))}.hover\:bg-olive-50:hover{--tw-bg-opacity:1;background-color:rgb(244 247 242 / var(--tw-bg-opacity, 1))}.hover\:text-red-600:hover{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.hover\:shadow-md:hover{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.focus\:border-amberGold-400:focus{--tw-border-opacity:1;border-color:rgb(224 169 67 / var(--tw-border-opacity, 1))}.focus\:border-olive-700:focus{--tw-border-opacity:1;border-color:rgb(45 90 39 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:scale-\[0\.99\]:active{--tw-scale-x:0.99;--tw-scale-y:0.99;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:col-span-2{grid-column:span 2 / span 2}.sm\:w-auto{width:auto}.sm\:max-w-2xl{max-width:42rem}.sm\:max-w-lg{max-width:32rem}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:self-center{align-self:center}.sm\:rounded-3xl{border-radius:1.5rem}.sm\:p-4{padding:1rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}}</style><script>
+        localStorage.setItem('alsayyad_config', "{\"name\":\"الصياد\",\"whatsappNumber\":\"201099246488\",\"currency\":\"ج.م\"}");
+        localStorage.setItem('alsayyad_products', "[{\"id\":1,\"name\":\"عسل نحل طبيعي صافي\",\"category\":\"عسل وسبريد\",\"weight\":\"برطمان 500 جم\",\"badge\":\"نقي 100%\",\"description\":\"عسل نحل طبيعي مفروز على البارد غني بالفيتامينات ومضادات الأكسدة، مثالي للإفطار والمناعة.\",\"price\":220,\"iconKey\":\"honey\",\"hidden\":false},{\"id\":2,\"name\":\"شوكولاتة سبريد بالبندق\",\"category\":\"عسل وسبريد\",\"weight\":\"برطمان 350 جم\",\"badge\":\"الأكثر طلباً\",\"description\":\"كريمة شوكولاتة غنية بالكاكاو الفاخر والبندق المحمص بدون زيوت مهدرجة، يعشقها الكبار والصغار.\",\"price\":145,\"iconKey\":\"chocolate\",\"hidden\":false},{\"id\":3,\"name\":\"بطاطس أورجانيك طازجة\",\"category\":\"خضروات وحبوب\",\"weight\":\"عبوة 2 كجم\",\"badge\":\"أورجانيك\",\"description\":\"بطاطس مزروعة طبيعياً بدون أي مبيدات أو أسمدة كيميائية، مثالية للقلي والطهي الصحي.\",\"price\":45,\"iconKey\":\"potatoes\",\"hidden\":false},{\"id\":4,\"name\":\"أرز أبيض فاخر (حبة عريضة)\",\"category\":\"خضروات وحبوب\",\"weight\":\"كيس 1 كجم\",\"badge\":\"نخب أول\",\"description\":\"أرز مصري فاخر منقى بعناية، حبة متماسكة ونظيفة لا يحتاج لغسيل متكرر وطعمه أصيل.\",\"price\":38,\"iconKey\":\"rice\",\"hidden\":false},{\"id\":5,\"name\":\"زيت زيتون بكر ممتاز\",\"category\":\"زيوت وطحينة\",\"weight\":\"زجاجة 500 مل\",\"badge\":\"عصرة أولى\",\"description\":\"زيت زيتون بكر معصور على البارد من أجود ثمار الزيتون، حموضة منخفضة ونكهة طبيعية مركزة.\",\"price\":290,\"iconKey\":\"oliveOil\",\"hidden\":false},{\"id\":6,\"name\":\"طحينة سمسم خام بلدي\",\"category\":\"زيوت وطحينة\",\"weight\":\"برطمان 450 جم\",\"badge\":\"سمسم محمص\",\"description\":\"طحينة سمسم صافي 100% مطحونة على الحجر لقوام كريمي ناعم ومذاق غني بدون أي إضافات.\",\"price\":95,\"iconKey\":\"tahini\",\"hidden\":false}]");
+      </script>
+</head>
+<body class="font-sans antialiased pb-28" style="overflow: hidden;">
+
+  <!-- الشريط العلوي (Header) -->
+  <header class="sticky top-0 z-30 bg-olive-800 text-white shadow-lg border-b border-olive-700">
+    <div class="max-w-5xl mx-auto px-4 py-3.5">
+      <div class="flex items-center justify-between gap-3">
+        <!-- شعار الصياد (الضغط 5 مرات متتالية يفتح نافذة الأونر السرية) -->
+        <div onclick="handleLogoTap()" class="flex items-center gap-3 cursor-pointer select-none" title="الصياد">
+          <div class="w-12 h-12 rounded-2xl bg-amberGold-500 flex items-center justify-center shadow-inner border-2 border-amberGold-400 shrink-0">
+            <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="rgba(255,255,255,0.2)"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-6m0 0c-2 0-3.5-1.5-3.5-3.5M12 12c2 0 3.5-1.5 3.5-3.5"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="text-2xl font-extrabold tracking-wide text-white">الصياد</h1>
+              <span class="text-[11px] bg-olive-700 text-amberGold-400 border border-amberGold-500/40 px-2 py-0.5 rounded-full font-bold">طبيعي 100%</span>
+              <span id="ownerActivePill" class="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded-full font-extrabold animate-pulse">وضع الأونر</span>
+            </div>
+            <p class="text-xs text-olive-100 mt-0.5">خيرات الطبيعة من المزرعة إلى بيتك</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- زر لوحة تحكم الأونر (يظهر فقط بعد تفعيل وضع الأونر برقم 5555) -->
+          <button id="ownerDashboardBtn" onclick="openOwnerModal()" class="px-3 py-2.5 bg-amberGold-500 hover:bg-amberGold-600 active:scale-95 text-white text-xs font-extrabold rounded-2xl shadow-md items-center gap-1.5 transition flex">
+            <span>⚙️ الإدارة</span>
+          </button>
+
+          <!-- زر السلة العلوي السريع -->
+          <button onclick="openCartModal()" class="relative p-3 bg-olive-700 hover:bg-olive-600 active:scale-95 transition rounded-2xl border border-olive-600 shadow-sm" aria-label="سلة المشتريات">
+            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <span id="headerCartBadge" class="hidden absolute -top-1.5 -right-1.5 bg-amberGold-500 text-white text-xs font-extrabold w-6 h-6 rounded-full flex items-center justify-center shadow border-2 border-olive-800">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- شريط البحث الفوري -->
+      <div class="mt-3.5 relative">
+        <input type="text" id="searchInput" oninput="filterProducts()" placeholder="ابحث عن عسل، شوكولاتة سبريد، بطاطس، زيت زيتون..." class="w-full bg-olive-900/70 text-white placeholder-olive-200/75 text-sm rounded-xl py-2.5 pr-10 pl-4 border border-olive-600 focus:outline-none focus:border-amberGold-400 transition">
+        <svg class="w-5 h-5 text-olive-200 absolute right-3 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- شريط التصنيفات السريعة -->
+  <section class="max-w-5xl mx-auto px-4 pt-4">
+    <div id="categoryFilters" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+          <button onclick="selectCategory('الكل')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition bg-olive-700 text-white shadow-sm">
+            الكل
+          </button>
+        
+          <button onclick="selectCategory('عسل وسبريد')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition bg-white text-olive-800 border border-olive-200 hover:bg-olive-50">
+            عسل وسبريد
+          </button>
+        
+          <button onclick="selectCategory('خضروات وحبوب')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition bg-white text-olive-800 border border-olive-200 hover:bg-olive-50">
+            خضروات وحبوب
+          </button>
+        
+          <button onclick="selectCategory('زيوت وطحينة')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition bg-white text-olive-800 border border-olive-200 hover:bg-olive-50">
+            زيوت وطحينة
+          </button>
+        </div>
+  </section>
+
+  <!-- شبكة عرض المنتجات -->
+  <main class="max-w-5xl mx-auto px-4 pt-2">
+    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <article class="bg-white rounded-2xl border border-olive-100 shadow-xs hover:shadow-md transition p-4 flex flex-col justify-between">
+            <div>
+              <!-- الجزء العلوي: الصورة الحقيقية أو الأيقونة والشارة -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="w-20 h-20 rounded-2xl bg-amber-50 border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden">
+                  <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="18" y="8" width="28" height="8" rx="3" fill="#8b5a2b"></rect>
+        <path d="M16 18h32l3 8v24a6 6 0 0 1-6 6H19a6 6 0 0 1-6-6V26l3-8z" fill="#f59e0b"></path>
+        <path d="M16 18h32l2 5c-4 3-8 1-12 4s-8 0-12 3-6-1-10 1V18z" fill="#fbbf24"></path>
+        <polygon points="32,31 38,34.5 38,41.5 32,45 26,41.5 26,34.5" fill="#fef3c7" opacity="0.85"></polygon>
+      </svg>
+                </div>
+                <div class="flex flex-col items-end gap-1.5">
+                  <span class="bg-olive-50 text-olive-700 border border-olive-200 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+                    نقي 100%
+                  </span>
+                  <span class="text-xs text-gray-500 font-semibold bg-gray-100 px-2 py-0.5 rounded-md">
+                    برطمان 500 جم
+                  </span>
+                </div>
+              </div>
+
+              <!-- اسم ووصف المنتج -->
+              <h3 class="text-lg font-extrabold text-olive-900 mt-3">عسل نحل طبيعي صافي</h3>
+              <p class="text-xs text-gray-600 leading-relaxed mt-1">عسل نحل طبيعي مفروز على البارد غني بالفيتامينات ومضادات الأكسدة، مثالي للإفطار والمناعة.</p>
+            </div>
+
+            <!-- السعر وأزرار التحكم بالكمية -->
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+              <div>
+                <span class="text-xs text-gray-400 block">السعر</span>
+                <span class="text-lg font-extrabold text-olive-800">220 <small class="text-xs font-bold">ج.م</small></span>
+              </div>
+
+              
+                <button onclick="addToCart(1)" class="bg-amberGold-500 hover:bg-amberGold-600 active:scale-95 transition text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-xs flex items-center gap-1.5">
+                  <span>+ أضف للسلة</span>
+                </button>
+              
+            </div>
+          </article>
+        
+          <article class="bg-white rounded-2xl border border-olive-100 shadow-xs hover:shadow-md transition p-4 flex flex-col justify-between">
+            <div>
+              <!-- الجزء العلوي: الصورة الحقيقية أو الأيقونة والشارة -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="w-20 h-20 rounded-2xl bg-orange-50 border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden">
+                  <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="18" y="8" width="28" height="8" rx="3" fill="#dc2626"></rect>
+        <rect x="15" y="17" width="34" height="39" rx="7" fill="#5c3317"></rect>
+        <rect x="19" y="25" width="26" height="21" rx="3" fill="#fef3c7"></rect>
+        <circle cx="32" cy="35" r="6" fill="#78350f"></circle>
+        <path d="M27 33c2-3 8-3 10 0" stroke="#fbbf24" stroke-width="2" fill="none" stroke-linecap="round"></path>
+      </svg>
+                </div>
+                <div class="flex flex-col items-end gap-1.5">
+                  <span class="bg-olive-50 text-olive-700 border border-olive-200 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+                    الأكثر طلباً
+                  </span>
+                  <span class="text-xs text-gray-500 font-semibold bg-gray-100 px-2 py-0.5 rounded-md">
+                    برطمان 350 جم
+                  </span>
+                </div>
+              </div>
+
+              <!-- اسم ووصف المنتج -->
+              <h3 class="text-lg font-extrabold text-olive-900 mt-3">شوكولاتة سبريد بالبندق</h3>
+              <p class="text-xs text-gray-600 leading-relaxed mt-1">كريمة شوكولاتة غنية بالكاكاو الفاخر والبندق المحمص بدون زيوت مهدرجة، يعشقها الكبار والصغار.</p>
+            </div>
+
+            <!-- السعر وأزرار التحكم بالكمية -->
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+              <div>
+                <span class="text-xs text-gray-400 block">السعر</span>
+                <span class="text-lg font-extrabold text-olive-800">145 <small class="text-xs font-bold">ج.م</small></span>
+              </div>
+
+              
+                <button onclick="addToCart(2)" class="bg-amberGold-500 hover:bg-amberGold-600 active:scale-95 transition text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-xs flex items-center gap-1.5">
+                  <span>+ أضف للسلة</span>
+                </button>
+              
+            </div>
+          </article>
+        
+          <article class="bg-white rounded-2xl border border-olive-100 shadow-xs hover:shadow-md transition p-4 flex flex-col justify-between">
+            <div>
+              <!-- الجزء العلوي: الصورة الحقيقية أو الأيقونة والشارة -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="w-20 h-20 rounded-2xl bg-yellow-50 border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden">
+                  <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <ellipse cx="28" cy="36" rx="16" ry="11" transform="rotate(-15 28 36)" fill="#d4a359"></ellipse>
+        <ellipse cx="40" cy="40" rx="13" ry="9" transform="rotate(12 40 40)" fill="#c28d40"></ellipse>
+        <circle cx="23" cy="33" r="1.5" fill="#8c5e24"></circle>
+        <circle cx="31" cy="38" r="1.5" fill="#8c5e24"></circle>
+        <circle cx="42" cy="38" r="1.5" fill="#8c5e24"></circle>
+        <path d="M32 22c0-5 5-9 10-8-1 5-5 8-10 8z" fill="#2d5a27"></path>
+      </svg>
+                </div>
+                <div class="flex flex-col items-end gap-1.5">
+                  <span class="bg-olive-50 text-olive-700 border border-olive-200 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+                    أورجانيك
+                  </span>
+                  <span class="text-xs text-gray-500 font-semibold bg-gray-100 px-2 py-0.5 rounded-md">
+                    عبوة 2 كجم
+                  </span>
+                </div>
+              </div>
+
+              <!-- اسم ووصف المنتج -->
+              <h3 class="text-lg font-extrabold text-olive-900 mt-3">بطاطس أورجانيك طازجة</h3>
+              <p class="text-xs text-gray-600 leading-relaxed mt-1">بطاطس مزروعة طبيعياً بدون أي مبيدات أو أسمدة كيميائية، مثالية للقلي والطهي الصحي.</p>
+            </div>
+
+            <!-- السعر وأزرار التحكم بالكمية -->
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+              <div>
+                <span class="text-xs text-gray-400 block">السعر</span>
+                <span class="text-lg font-extrabold text-olive-800">45 <small class="text-xs font-bold">ج.م</small></span>
+              </div>
+
+              
+                <button onclick="addToCart(3)" class="bg-amberGold-500 hover:bg-amberGold-600 active:scale-95 transition text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-xs flex items-center gap-1.5">
+                  <span>+ أضف للسلة</span>
+                </button>
+              
+            </div>
+          </article>
+        
+          <article class="bg-white rounded-2xl border border-olive-100 shadow-xs hover:shadow-md transition p-4 flex flex-col justify-between">
+            <div>
+              <!-- الجزء العلوي: الصورة الحقيقية أو الأيقونة والشارة -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="w-20 h-20 rounded-2xl bg-emerald-50 border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden">
+                  <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <path d="M12 34c0-10 9-16 20-16s20 6 20 16H12z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"></path>
+        <path d="M10 34h44l-4 14a6 6 0 0 1-6 4H20a6 6 0 0 1-6-4l-4-14z" fill="#2d5a27"></path>
+        <ellipse cx="26" cy="27" rx="3" ry="1.5" fill="#cbd5e1"></ellipse>
+        <ellipse cx="35" cy="25" rx="3" ry="1.5" fill="#cbd5e1"></ellipse>
+        <ellipse cx="32" cy="30" rx="3" ry="1.5" fill="#cbd5e1"></ellipse>
+      </svg>
+                </div>
+                <div class="flex flex-col items-end gap-1.5">
+                  <span class="bg-olive-50 text-olive-700 border border-olive-200 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+                    نخب أول
+                  </span>
+                  <span class="text-xs text-gray-500 font-semibold bg-gray-100 px-2 py-0.5 rounded-md">
+                    كيس 1 كجم
+                  </span>
+                </div>
+              </div>
+
+              <!-- اسم ووصف المنتج -->
+              <h3 class="text-lg font-extrabold text-olive-900 mt-3">أرز أبيض فاخر (حبة عريضة)</h3>
+              <p class="text-xs text-gray-600 leading-relaxed mt-1">أرز مصري فاخر منقى بعناية، حبة متماسكة ونظيفة لا يحتاج لغسيل متكرر وطعمه أصيل.</p>
+            </div>
+
+            <!-- السعر وأزرار التحكم بالكمية -->
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+              <div>
+                <span class="text-xs text-gray-400 block">السعر</span>
+                <span class="text-lg font-extrabold text-olive-800">38 <small class="text-xs font-bold">ج.م</small></span>
+              </div>
+
+              
+                <button onclick="addToCart(4)" class="bg-amberGold-500 hover:bg-amberGold-600 active:scale-95 transition text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-xs flex items-center gap-1.5">
+                  <span>+ أضف للسلة</span>
+                </button>
+              
+            </div>
+          </article>
+        
+          <article class="bg-white rounded-2xl border border-olive-100 shadow-xs hover:shadow-md transition p-4 flex flex-col justify-between">
+            <div>
+              <!-- الجزء العلوي: الصورة الحقيقية أو الأيقونة والشارة -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="w-20 h-20 rounded-2xl bg-lime-50 border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden">
+                  <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="27" y="7" width="10" height="6" rx="2" fill="#92400e"></rect>
+        <path d="M28 13h8v7l8 8v22a6 6 0 0 1-6 6H26a6 6 0 0 1-6-6V28l8-8v-7z" fill="#65a30d"></path>
+        <rect x="23" y="32" width="18" height="14" rx="2" fill="#fef9c3"></rect>
+        <circle cx="32" cy="39" r="4" fill="#3f6212"></circle>
+      </svg>
+                </div>
+                <div class="flex flex-col items-end gap-1.5">
+                  <span class="bg-olive-50 text-olive-700 border border-olive-200 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+                    عصرة أولى
+                  </span>
+                  <span class="text-xs text-gray-500 font-semibold bg-gray-100 px-2 py-0.5 rounded-md">
+                    زجاجة 500 مل
+                  </span>
+                </div>
+              </div>
+
+              <!-- اسم ووصف المنتج -->
+              <h3 class="text-lg font-extrabold text-olive-900 mt-3">زيت زيتون بكر ممتاز</h3>
+              <p class="text-xs text-gray-600 leading-relaxed mt-1">زيت زيتون بكر معصور على البارد من أجود ثمار الزيتون، حموضة منخفضة ونكهة طبيعية مركزة.</p>
+            </div>
+
+            <!-- السعر وأزرار التحكم بالكمية -->
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+              <div>
+                <span class="text-xs text-gray-400 block">السعر</span>
+                <span class="text-lg font-extrabold text-olive-800">290 <small class="text-xs font-bold">ج.م</small></span>
+              </div>
+
+              
+                <button onclick="addToCart(5)" class="bg-amberGold-500 hover:bg-amberGold-600 active:scale-95 transition text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-xs flex items-center gap-1.5">
+                  <span>+ أضف للسلة</span>
+                </button>
+              
+            </div>
+          </article>
+        
+          <article class="bg-white rounded-2xl border border-olive-100 shadow-xs hover:shadow-md transition p-4 flex flex-col justify-between">
+            <div>
+              <!-- الجزء العلوي: الصورة الحقيقية أو الأيقونة والشارة -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="w-20 h-20 rounded-2xl bg-amber-50 border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden">
+                  <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="18" y="8" width="28" height="8" rx="3" fill="#d97706"></rect>
+        <rect x="15" y="17" width="34" height="39" rx="7" fill="#e7d3b0"></rect>
+        <rect x="19" y="26" width="26" height="19" rx="3" fill="#ffffff"></rect>
+        <circle cx="28" cy="35" r="2" fill="#b45309"></circle>
+        <circle cx="36" cy="35" r="2" fill="#b45309"></circle>
+        <circle cx="32" cy="32" r="2" fill="#b45309"></circle>
+      </svg>
+                </div>
+                <div class="flex flex-col items-end gap-1.5">
+                  <span class="bg-olive-50 text-olive-700 border border-olive-200 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+                    سمسم محمص
+                  </span>
+                  <span class="text-xs text-gray-500 font-semibold bg-gray-100 px-2 py-0.5 rounded-md">
+                    برطمان 450 جم
+                  </span>
+                </div>
+              </div>
+
+              <!-- اسم ووصف المنتج -->
+              <h3 class="text-lg font-extrabold text-olive-900 mt-3">طحينة سمسم خام بلدي</h3>
+              <p class="text-xs text-gray-600 leading-relaxed mt-1">طحينة سمسم صافي 100% مطحونة على الحجر لقوام كريمي ناعم ومذاق غني بدون أي إضافات.</p>
+            </div>
+
+            <!-- السعر وأزرار التحكم بالكمية -->
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+              <div>
+                <span class="text-xs text-gray-400 block">السعر</span>
+                <span class="text-lg font-extrabold text-olive-800">95 <small class="text-xs font-bold">ج.م</small></span>
+              </div>
+
+              
+                <button onclick="addToCart(6)" class="bg-amberGold-500 hover:bg-amberGold-600 active:scale-95 transition text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-xs flex items-center gap-1.5">
+                  <span>+ أضف للسلة</span>
+                </button>
+              
+            </div>
+          </article>
+        </div>
+
+    <!-- رسالة عدم وجود نتائج بحث -->
+    <div id="emptySearchState" class="hidden text-center py-12 bg-white rounded-2xl border border-olive-100 shadow-xs mt-4">
+      <p class="text-olive-800 font-bold text-lg">لم نجد منتجاً يطابق بحثك</p>
+      <p class="text-gray-500 text-sm mt-1">جرب البحث بكلمة أخرى أو تصفح جميع المنتجات</p>
+      <button onclick="resetFilters()" class="mt-4 px-5 py-2 bg-olive-700 text-white rounded-xl text-sm font-bold">عرض كل المنتجات</button>
+    </div>
+  </main>
+
+  <!-- شريط السلة السفلي الثابت -->
+  <div id="bottomCartBar" class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-olive-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3">
+    <div class="max-w-5xl mx-auto flex items-center justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-gray-500">إجمالي السلة:</span>
+          <span id="barCountText" class="text-xs bg-olive-100 text-olive-800 font-bold px-2 py-0.5 rounded-full">0 منتجات</span>
+        </div>
+        <div id="barTotalPrice" class="text-lg font-extrabold text-olive-800 mt-0.5">0 ج.م</div>
+      </div>
+
+      <button onclick="openCartModal()" class="bg-olive-700 hover:bg-olive-800 active:scale-95 transition text-white font-bold px-6 py-3 rounded-xl shadow-md flex items-center gap-2 text-sm sm:text-base">
+        <span>مراجعة وإتمام الطلب</span>
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- نافذة السلة وإتمام الطلب (Modal) -->
+  <div id="cartModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] flex flex-col animate-pop overflow-hidden">
+      
+      <!-- رأس النافذة -->
+      <div class="px-5 py-4 bg-olive-800 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🛒</span>
+          <h2 class="text-lg font-extrabold">سلة مشتريات الصياد</h2>
+        </div>
+        <button onclick="closeCartModal()" class="p-2 bg-olive-700 hover:bg-olive-600 rounded-xl text-white">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- محتوى النافذة القابل للتمرير -->
+      <div class="p-5 overflow-y-auto space-y-5 flex-1">
+        <!-- قائمة الأصناف المختارة -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-sm text-olive-900">الأصناف المختارة</h3>
+            <button id="clearCartBtn" onclick="clearCart()" class="text-xs text-red-600 font-bold hover:underline hidden">إفراغ السلة</button>
+          </div>
+          <div id="cartItemsContainer" class="space-y-2.5">
+            <!-- يتم توليد عناصر السلة هنا -->
+          </div>
+        </div>
+
+        <!-- ملخص الفاتورة -->
+        <div class="bg-olive-50 border border-olive-200 rounded-2xl p-3.5 flex items-center justify-between">
+          <span class="font-bold text-olive-900">الإجمالي النهائي:</span>
+          <span id="modalTotalPrice" class="text-xl font-extrabold text-olive-800">0 ج.م</span>
+        </div>
+
+        <!-- بيانات التوصيل -->
+        <div class="space-y-3 pt-1 border-t border-gray-100">
+          <h3 class="font-bold text-sm text-olive-900">بيانات التوصيل</h3>
+          
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">الاسم بالكامل *</label>
+            <input type="text" id="custName" placeholder="مثال: أحمد محمد" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-olive-700">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">رقم الهاتف للتواصل *</label>
+            <input type="tel" id="custPhone" placeholder="مثال: 01012345678" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-olive-700 text-right">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">العنوان بالتفصيل *</label>
+            <textarea id="custAddress" rows="2" placeholder="المدينة، الحي، اسم الشارع، رقم العقار..." class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-olive-700"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">ملاحظات إضافية (اختياري)</label>
+            <input type="text" id="custNotes" placeholder="مثال: التوصيل بعد الساعة 5 مساءً" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-olive-700">
+          </div>
+        </div>
+      </div>
+
+      <!-- أزرار الإجراءات السفلية -->
+      <div class="p-4 bg-gray-50 border-t border-gray-200 space-y-2">
+        <button onclick="checkoutViaWhatsApp()" class="w-full bg-[#1ea851] hover:bg-[#199145] active:scale-[0.99] transition text-white font-extrabold py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2 text-base">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z"></path>
+          </svg>
+          <span>إرسال الطلب عبر واتساب</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- صندوق إشعارات مخصص (Toast) بديل لـ alert() -->
+  <div id="toastBox" class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] max-w-sm w-[90%] bg-olive-900 text-white px-4 py-3 rounded-2xl shadow-xl border border-amberGold-500/50 flex items-center gap-3 animate-pop hidden">
+    <span id="toastIcon" class="text-xl">✅</span>
+    <p id="toastMessage" class="text-sm font-bold leading-snug">تم حفظ رقم الواتساب الجديد بنجاح</p>
+  </div>
+
+  <!-- نافذة إدخال الرقم السري للأونر (PIN Modal) -->
+  <div id="pinModal" class="fixed inset-0 z-[55] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl text-center animate-pop border border-olive-200">
+      <div class="w-14 h-14 bg-olive-100 text-olive-800 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">🔐</div>
+      <h3 class="text-lg font-extrabold text-olive-900">دخول الأونر</h3>
+      <p class="text-xs text-gray-500 mt-1">أدخل الرقم السري لإدارة متجر الصياد</p>
+      <input type="password" id="ownerPinInput" maxlength="6" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter') verifyOwnerPin()" class="w-full mt-4 text-center text-2xl tracking-[0.5em] font-extrabold py-3 bg-gray-50 border border-gray-300 rounded-2xl focus:outline-none focus:border-olive-700">
+      <div class="grid grid-cols-2 gap-2 mt-4">
+        <button onclick="closePinModal()" class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-sm">إلغاء</button>
+        <button onclick="verifyOwnerPin()" class="py-2.5 bg-olive-700 hover:bg-olive-800 text-white font-bold rounded-xl text-sm shadow">دخول</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- لوحة تحكم الأونر الكاملة (Owner Dashboard Modal) -->
+  <div id="ownerModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-2xl rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[94vh] flex flex-col animate-pop overflow-hidden">
+      
+      <!-- رأس لوحة الأونر -->
+      <div class="px-5 py-4 bg-olive-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">👑</span>
+          <div>
+            <h2 class="text-base sm:text-lg font-extrabold">لوحة تحكم الأونر - الصياد</h2>
+            <p class="text-[11px] text-olive-200">إضافة وتعديل وحذف المنتجات والأسعار</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="logoutOwnerMode()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition">خروج من الوضع</button>
+          <button onclick="closeOwnerModal()" class="p-2 bg-olive-800 hover:bg-olive-700 rounded-xl text-white">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- محتوى لوحة الأونر -->
+      <div class="p-5 overflow-y-auto space-y-6 flex-1">
+        
+        <!-- إعدادات رقم الواتساب -->
+        <div class="bg-ivory border border-olive-200 rounded-2xl p-4">
+          <h3 class="font-extrabold text-sm text-olive-900 mb-2">📱 رقم واتساب استقبال الطلبات</h3>
+          <div class="flex gap-2">
+            <input type="tel" id="ownerWhatsappInput" dir="ltr" placeholder="201000000000" class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-bold text-left focus:outline-none focus:border-olive-700">
+            <button onclick="saveOwnerWhatsapp()" class="px-4 py-2 bg-olive-700 hover:bg-olive-800 text-white font-bold rounded-xl text-xs sm:text-sm shrink-0">حفظ الرقم</button>
+          </div>
+          <p class="text-[11px] text-gray-500 mt-1.5">اكتب الرقم بكود الدولة بدون علامة + (مثال لمصر: 2010xxxxxxxx)</p>
+          <button onclick="exportReadyAppFile()" class="mt-3 w-full py-2.5 bg-olive-900 hover:bg-olive-800 text-amberGold-400 font-extrabold rounded-xl text-xs sm:text-sm shadow flex items-center justify-center gap-2 transition">
+            <span>📥 تنزيل نسخة التطبيق الجاهزة بإعداداتي (index.html)</span>
+          </button>
+        </div>
+
+        <!-- نموذج إضافة / تعديل منتج -->
+        <div class="bg-white border-2 border-amberGold-400/50 rounded-2xl p-4 shadow-xs">
+          <div class="flex items-center justify-between mb-3">
+            <h3 id="formProductTitle" class="font-extrabold text-sm text-olive-900">➕ إضافة منتج جديد</h3>
+            <button id="cancelEditBtn" onclick="resetProductForm()" class="hidden text-xs text-red-600 font-bold hover:underline">إلغاء التعديل</button>
+          </div>
+
+          <input type="hidden" id="editProductId" value="">
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">اسم المنتج *</label>
+              <input type="text" id="prodNameInput" placeholder="مثال: عسل سدر جبلي" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-olive-700">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">السعر (ج.م) *</label>
+              <input type="number" id="prodPriceInput" placeholder="مثال: 250" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-olive-700">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">التصنيف *</label>
+              <input type="text" id="prodCategoryInput" list="categorySuggestions" placeholder="مثال: عسل وسبريد" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-olive-700">
+              <datalist id="categorySuggestions">
+                <option value="عسل وسبريد">
+                </option><option value="خضروات وحبوب">
+                </option><option value="زيوت وطحينة">
+              </option></datalist>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">الوزن / العبوة</label>
+              <input type="text" id="prodWeightInput" placeholder="مثال: برطمان 500 جم" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-olive-700">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">الشارة (Badge)</label>
+              <input type="text" id="prodBadgeInput" placeholder="مثال: نقي 100% أو عرض خاص" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-olive-700">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">شكل الأيقونة (الاحتياطية)</label>
+              <select id="prodIconSelect" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-olive-700">
+                <option value="honey">🍯 برطمان عسل</option>
+                <option value="chocolate">🍫 شوكولاتة سبريد</option>
+                <option value="potatoes">🥔 بطاطس أورجانيك</option>
+                <option value="rice">🍚 طبق أرز</option>
+                <option value="oliveOil">🫒 زجاجة زيت زيتون</option>
+                <option value="tahini">🥣 برطمان طحينة</option>
+              </select>
+            </div>
+
+            <!-- إضافة خيار رفع صورة حقيقية للمنتج من الجهاز أو رابط -->
+            <div class="sm:col-span-2 bg-ivory p-3 rounded-xl border border-olive-200">
+              <label class="block text-xs font-bold text-olive-900 mb-1.5">📸 صورة حقيقية للمنتج (اختياري - من جهازك أو رابط)</label>
+              <div class="flex flex-col sm:flex-row items-center gap-2">
+                <label class="w-full sm:w-auto px-3.5 py-2 bg-olive-700 hover:bg-olive-800 text-white text-xs font-bold rounded-xl cursor-pointer text-center shrink-0 transition">
+                  <span>📁 اختر صورة من الجهاز</span>
+                  <input type="file" id="prodImageFileInput" accept="image/*" onchange="handleProductImageUpload(event)" class="hidden">
+                </label>
+                <input type="text" id="prodImageUrlInput" oninput="previewProductImageUrl()" placeholder="أو الصق رابط صورة مباشر هنا (https://...)" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-left dir-ltr focus:outline-none focus:border-olive-700">
+                <button type="button" id="clearProdImageBtn" onclick="clearProductImage()" class="hidden px-2.5 py-2 bg-red-100 text-red-700 text-xs font-bold rounded-xl shrink-0">حذف الصورة</button>
+              </div>
+              <div id="prodImagePreviewWrap" class="hidden mt-2.5 flex items-center gap-3">
+                <img id="prodImagePreview" src="" alt="معاينة" class="w-16 h-16 object-cover rounded-xl border border-olive-300 bg-white">
+                <span class="text-[11px] text-olive-700 font-bold">✅ الصورة جاهزة وستظهر بدلاً من الأيقونة</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <label class="block text-xs font-bold text-gray-700 mb-1">وصف المنتج</label>
+            <textarea id="prodDescInput" rows="2" placeholder="اكتب وصفاً مختصراً يوضح جودة المنتج..." class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-olive-700"></textarea>
+          </div>
+
+          <button onclick="saveProductFromOwner()" id="saveProductBtn" class="mt-3 w-full py-2.5 bg-amberGold-500 hover:bg-amberGold-600 text-white font-extrabold rounded-xl text-sm shadow transition">حفظ وإضافة المنتج للمتجر</button>
+        </div>
+
+        <!-- قائمة إدارة المنتجات الحالية -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-extrabold text-sm text-olive-900">📦 المنتجات الحالية (<span id="ownerProductsCount">6</span>)</h3>
+            <button onclick="restoreDefaultProducts()" class="text-[11px] text-gray-500 hover:text-red-600 underline">استعادة المنتجات الافتراضية</button>
+          </div>
+          <div id="ownerProductsList" class="space-y-2.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border bg-ivory border-olive-200">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden scale-75">
+                <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="18" y="8" width="28" height="8" rx="3" fill="#8b5a2b"></rect>
+        <path d="M16 18h32l3 8v24a6 6 0 0 1-6 6H19a6 6 0 0 1-6-6V26l3-8z" fill="#f59e0b"></path>
+        <path d="M16 18h32l2 5c-4 3-8 1-12 4s-8 0-12 3-6-1-10 1V18z" fill="#fbbf24"></path>
+        <polygon points="32,31 38,34.5 38,41.5 32,45 26,41.5 26,34.5" fill="#fef3c7" opacity="0.85"></polygon>
+      </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-extrabold text-sm text-olive-900">عسل نحل طبيعي صافي</h4>
+                  
+                </div>
+                <p class="text-xs text-gray-600">عسل وسبريد • <strong class="text-olive-800">220 ج.م</strong> (برطمان 500 جم)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 self-end sm:self-center">
+              <button onclick="editProductInOwner(1)" class="px-3 py-1.5 bg-olive-700 hover:bg-olive-800 text-white text-xs font-bold rounded-lg transition">تعديل</button>
+              <button onclick="toggleHideProduct(1)" class="px-3 py-1.5 bg-amberGold-500 hover:bg-amberGold-600 text-white text-xs font-bold rounded-lg transition">إخفاء</button>
+              <button onclick="deleteProductInOwner(1)" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition">حذف</button>
+            </div>
+          </div>
+        
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border bg-ivory border-olive-200">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden scale-75">
+                <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="18" y="8" width="28" height="8" rx="3" fill="#dc2626"></rect>
+        <rect x="15" y="17" width="34" height="39" rx="7" fill="#5c3317"></rect>
+        <rect x="19" y="25" width="26" height="21" rx="3" fill="#fef3c7"></rect>
+        <circle cx="32" cy="35" r="6" fill="#78350f"></circle>
+        <path d="M27 33c2-3 8-3 10 0" stroke="#fbbf24" stroke-width="2" fill="none" stroke-linecap="round"></path>
+      </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-extrabold text-sm text-olive-900">شوكولاتة سبريد بالبندق</h4>
+                  
+                </div>
+                <p class="text-xs text-gray-600">عسل وسبريد • <strong class="text-olive-800">145 ج.م</strong> (برطمان 350 جم)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 self-end sm:self-center">
+              <button onclick="editProductInOwner(2)" class="px-3 py-1.5 bg-olive-700 hover:bg-olive-800 text-white text-xs font-bold rounded-lg transition">تعديل</button>
+              <button onclick="toggleHideProduct(2)" class="px-3 py-1.5 bg-amberGold-500 hover:bg-amberGold-600 text-white text-xs font-bold rounded-lg transition">إخفاء</button>
+              <button onclick="deleteProductInOwner(2)" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition">حذف</button>
+            </div>
+          </div>
+        
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border bg-ivory border-olive-200">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden scale-75">
+                <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <ellipse cx="28" cy="36" rx="16" ry="11" transform="rotate(-15 28 36)" fill="#d4a359"></ellipse>
+        <ellipse cx="40" cy="40" rx="13" ry="9" transform="rotate(12 40 40)" fill="#c28d40"></ellipse>
+        <circle cx="23" cy="33" r="1.5" fill="#8c5e24"></circle>
+        <circle cx="31" cy="38" r="1.5" fill="#8c5e24"></circle>
+        <circle cx="42" cy="38" r="1.5" fill="#8c5e24"></circle>
+        <path d="M32 22c0-5 5-9 10-8-1 5-5 8-10 8z" fill="#2d5a27"></path>
+      </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-extrabold text-sm text-olive-900">بطاطس أورجانيك طازجة</h4>
+                  
+                </div>
+                <p class="text-xs text-gray-600">خضروات وحبوب • <strong class="text-olive-800">45 ج.م</strong> (عبوة 2 كجم)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 self-end sm:self-center">
+              <button onclick="editProductInOwner(3)" class="px-3 py-1.5 bg-olive-700 hover:bg-olive-800 text-white text-xs font-bold rounded-lg transition">تعديل</button>
+              <button onclick="toggleHideProduct(3)" class="px-3 py-1.5 bg-amberGold-500 hover:bg-amberGold-600 text-white text-xs font-bold rounded-lg transition">إخفاء</button>
+              <button onclick="deleteProductInOwner(3)" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition">حذف</button>
+            </div>
+          </div>
+        
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border bg-ivory border-olive-200">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden scale-75">
+                <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <path d="M12 34c0-10 9-16 20-16s20 6 20 16H12z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"></path>
+        <path d="M10 34h44l-4 14a6 6 0 0 1-6 4H20a6 6 0 0 1-6-4l-4-14z" fill="#2d5a27"></path>
+        <ellipse cx="26" cy="27" rx="3" ry="1.5" fill="#cbd5e1"></ellipse>
+        <ellipse cx="35" cy="25" rx="3" ry="1.5" fill="#cbd5e1"></ellipse>
+        <ellipse cx="32" cy="30" rx="3" ry="1.5" fill="#cbd5e1"></ellipse>
+      </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-extrabold text-sm text-olive-900">أرز أبيض فاخر (حبة عريضة)</h4>
+                  
+                </div>
+                <p class="text-xs text-gray-600">خضروات وحبوب • <strong class="text-olive-800">38 ج.م</strong> (كيس 1 كجم)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 self-end sm:self-center">
+              <button onclick="editProductInOwner(4)" class="px-3 py-1.5 bg-olive-700 hover:bg-olive-800 text-white text-xs font-bold rounded-lg transition">تعديل</button>
+              <button onclick="toggleHideProduct(4)" class="px-3 py-1.5 bg-amberGold-500 hover:bg-amberGold-600 text-white text-xs font-bold rounded-lg transition">إخفاء</button>
+              <button onclick="deleteProductInOwner(4)" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition">حذف</button>
+            </div>
+          </div>
+        
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border bg-ivory border-olive-200">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden scale-75">
+                <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="27" y="7" width="10" height="6" rx="2" fill="#92400e"></rect>
+        <path d="M28 13h8v7l8 8v22a6 6 0 0 1-6 6H26a6 6 0 0 1-6-6V28l8-8v-7z" fill="#65a30d"></path>
+        <rect x="23" y="32" width="18" height="14" rx="2" fill="#fef9c3"></rect>
+        <circle cx="32" cy="39" r="4" fill="#3f6212"></circle>
+      </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-extrabold text-sm text-olive-900">زيت زيتون بكر ممتاز</h4>
+                  
+                </div>
+                <p class="text-xs text-gray-600">زيوت وطحينة • <strong class="text-olive-800">290 ج.م</strong> (زجاجة 500 مل)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 self-end sm:self-center">
+              <button onclick="editProductInOwner(5)" class="px-3 py-1.5 bg-olive-700 hover:bg-olive-800 text-white text-xs font-bold rounded-lg transition">تعديل</button>
+              <button onclick="toggleHideProduct(5)" class="px-3 py-1.5 bg-amberGold-500 hover:bg-amberGold-600 text-white text-xs font-bold rounded-lg transition">إخفاء</button>
+              <button onclick="deleteProductInOwner(5)" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition">حذف</button>
+            </div>
+          </div>
+        
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border bg-ivory border-olive-200">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden scale-75">
+                <svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="18" y="8" width="28" height="8" rx="3" fill="#d97706"></rect>
+        <rect x="15" y="17" width="34" height="39" rx="7" fill="#e7d3b0"></rect>
+        <rect x="19" y="26" width="26" height="19" rx="3" fill="#ffffff"></rect>
+        <circle cx="28" cy="35" r="2" fill="#b45309"></circle>
+        <circle cx="36" cy="35" r="2" fill="#b45309"></circle>
+        <circle cx="32" cy="32" r="2" fill="#b45309"></circle>
+      </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-extrabold text-sm text-olive-900">طحينة سمسم خام بلدي</h4>
+                  
+                </div>
+                <p class="text-xs text-gray-600">زيوت وطحينة • <strong class="text-olive-800">95 ج.م</strong> (برطمان 450 جم)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 self-end sm:self-center">
+              <button onclick="editProductInOwner(6)" class="px-3 py-1.5 bg-olive-700 hover:bg-olive-800 text-white text-xs font-bold rounded-lg transition">تعديل</button>
+              <button onclick="toggleHideProduct(6)" class="px-3 py-1.5 bg-amberGold-500 hover:bg-amberGold-600 text-white text-xs font-bold rounded-lg transition">إخفاء</button>
+              <button onclick="deleteProductInOwner(6)" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition">حذف</button>
+            </div>
+          </div>
+        </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // إعدادات المتجر الأساسية والرقم السري للأونر (5555)
+    // =========================================================================
+    const OWNER_PIN = "5555";
+
+    const DEFAULT_CONFIG = {
+      name: "الصياد",
+      whatsappNumber: "201000000000",
+      currency: "ج.م"
+    };
+
+    let STORE_CONFIG = JSON.parse(localStorage.getItem('alsayyad_config')) || { ...DEFAULT_CONFIG };
+
+    // =========================================================================
+    // مكتبة أيقونات SVG مخصصة لكل منتج (تعمل بدون إنترنت أو روابط صور خارجية)
+    // =========================================================================
+    const PRODUCT_ICONS = {
+      honey: `<svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="18" y="8" width="28" height="8" rx="3" fill="#8b5a2b"/>
+        <path d="M16 18h32l3 8v24a6 6 0 0 1-6 6H19a6 6 0 0 1-6-6V26l3-8z" fill="#f59e0b"/>
+        <path d="M16 18h32l2 5c-4 3-8 1-12 4s-8 0-12 3-6-1-10 1V18z" fill="#fbbf24"/>
+        <polygon points="32,31 38,34.5 38,41.5 32,45 26,41.5 26,34.5" fill="#fef3c7" opacity="0.85"/>
+      </svg>`,
+      chocolate: `<svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="18" y="8" width="28" height="8" rx="3" fill="#dc2626"/>
+        <rect x="15" y="17" width="34" height="39" rx="7" fill="#5c3317"/>
+        <rect x="19" y="25" width="26" height="21" rx="3" fill="#fef3c7"/>
+        <circle cx="32" cy="35" r="6" fill="#78350f"/>
+        <path d="M27 33c2-3 8-3 10 0" stroke="#fbbf24" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>`,
+      potatoes: `<svg viewBox="0 0 64 64" class="w-16 h-16">
+        <ellipse cx="28" cy="36" rx="16" ry="11" transform="rotate(-15 28 36)" fill="#d4a359"/>
+        <ellipse cx="40" cy="40" rx="13" ry="9" transform="rotate(12 40 40)" fill="#c28d40"/>
+        <circle cx="23" cy="33" r="1.5" fill="#8c5e24"/>
+        <circle cx="31" cy="38" r="1.5" fill="#8c5e24"/>
+        <circle cx="42" cy="38" r="1.5" fill="#8c5e24"/>
+        <path d="M32 22c0-5 5-9 10-8-1 5-5 8-10 8z" fill="#2d5a27"/>
+      </svg>`,
+      rice: `<svg viewBox="0 0 64 64" class="w-16 h-16">
+        <path d="M12 34c0-10 9-16 20-16s20 6 20 16H12z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+        <path d="M10 34h44l-4 14a6 6 0 0 1-6 4H20a6 6 0 0 1-6-4l-4-14z" fill="#2d5a27"/>
+        <ellipse cx="26" cy="27" rx="3" ry="1.5" fill="#cbd5e1"/>
+        <ellipse cx="35" cy="25" rx="3" ry="1.5" fill="#cbd5e1"/>
+        <ellipse cx="32" cy="30" rx="3" ry="1.5" fill="#cbd5e1"/>
+      </svg>`,
+      oliveOil: `<svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="27" y="7" width="10" height="6" rx="2" fill="#92400e"/>
+        <path d="M28 13h8v7l8 8v22a6 6 0 0 1-6 6H26a6 6 0 0 1-6-6V28l8-8v-7z" fill="#65a30d"/>
+        <rect x="23" y="32" width="18" height="14" rx="2" fill="#fef9c3"/>
+        <circle cx="32" cy="39" r="4" fill="#3f6212"/>
+      </svg>`,
+      tahini: `<svg viewBox="0 0 64 64" class="w-16 h-16">
+        <rect x="18" y="8" width="28" height="8" rx="3" fill="#d97706"/>
+        <rect x="15" y="17" width="34" height="39" rx="7" fill="#e7d3b0"/>
+        <rect x="19" y="26" width="26" height="19" rx="3" fill="#ffffff"/>
+        <circle cx="28" cy="35" r="2" fill="#b45309"/>
+        <circle cx="36" cy="35" r="2" fill="#b45309"/>
+        <circle cx="32" cy="32" r="2" fill="#b45309"/>
+      </svg>`
+    };
+
+    // =========================================================================
+    // قاعدة بيانات منتجات الصياد الافتراضية
+    // =========================================================================
+    const DEFAULT_PRODUCTS = [
+      {
+        id: 1,
+        name: "عسل نحل طبيعي صافي",
+        category: "عسل وسبريد",
+        weight: "برطمان 500 جم",
+        badge: "نقي 100%",
+        description: "عسل نحل طبيعي مفروز على البارد غني بالفيتامينات ومضادات الأكسدة، مثالي للإفطار والمناعة.",
+        price: 220,
+        iconKey: "honey",
+        hidden: false
+      },
+      {
+        id: 2,
+        name: "شوكولاتة سبريد بالبندق",
+        category: "عسل وسبريد",
+        weight: "برطمان 350 جم",
+        badge: "الأكثر طلباً",
+        description: "كريمة شوكولاتة غنية بالكاكاو الفاخر والبندق المحمص بدون زيوت مهدرجة، يعشقها الكبار والصغار.",
+        price: 145,
+        iconKey: "chocolate",
+        hidden: false
+      },
+      {
+        id: 3,
+        name: "بطاطس أورجانيك طازجة",
+        category: "خضروات وحبوب",
+        weight: "عبوة 2 كجم",
+        badge: "أورجانيك",
+        description: "بطاطس مزروعة طبيعياً بدون أي مبيدات أو أسمدة كيميائية، مثالية للقلي والطهي الصحي.",
+        price: 45,
+        iconKey: "potatoes",
+        hidden: false
+      },
+      {
+        id: 4,
+        name: "أرز أبيض فاخر (حبة عريضة)",
+        category: "خضروات وحبوب",
+        weight: "كيس 1 كجم",
+        badge: "نخب أول",
+        description: "أرز مصري فاخر منقى بعناية، حبة متماسكة ونظيفة لا يحتاج لغسيل متكرر وطعمه أصيل.",
+        price: 38,
+        iconKey: "rice",
+        hidden: false
+      },
+      {
+        id: 5,
+        name: "زيت زيتون بكر ممتاز",
+        category: "زيوت وطحينة",
+        weight: "زجاجة 500 مل",
+        badge: "عصرة أولى",
+        description: "زيت زيتون بكر معصور على البارد من أجود ثمار الزيتون، حموضة منخفضة ونكهة طبيعية مركزة.",
+        price: 290,
+        iconKey: "oliveOil",
+        hidden: false
+      },
+      {
+        id: 6,
+        name: "طحينة سمسم خام بلدي",
+        category: "زيوت وطحينة",
+        weight: "برطمان 450 جم",
+        badge: "سمسم محمص",
+        description: "طحينة سمسم صافي 100% مطحونة على الحجر لقوام كريمي ناعم ومذاق غني بدون أي إضافات.",
+        price: 95,
+        iconKey: "tahini",
+        hidden: false
+      }
+    ];
+
+    const ICON_BG_MAP = {
+      honey: "bg-amber-50",
+      chocolate: "bg-orange-50",
+      potatoes: "bg-yellow-50",
+      rice: "bg-emerald-50",
+      oliveOil: "bg-lime-50",
+      tahini: "bg-amber-50"
+    };
+
+    // تحميل المنتجات المحفوظة أو استخدام الافتراضية
+    let PRODUCTS = JSON.parse(localStorage.getItem('alsayyad_products')) || JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+
+    function saveProductsToStorage() {
+      localStorage.setItem('alsayyad_products', JSON.stringify(PRODUCTS));
+    }
+
+    // =========================================================================
+    // إدارة حالة التطبيق (State) مع الحفظ التلقائي في المتصفح (LocalStorage)
+    // =========================================================================
+    let cart = JSON.parse(localStorage.getItem('alsayyad_cart')) || {};
+    let activeCategory = "الكل";
+    let isOwnerAuthenticated = sessionStorage.getItem('alsayyad_owner') === 'true';
+    let logoTapCount = 0;
+    let logoTapTimer = null;
+    let currentUploadedImage = "";
+
+    // =========================================================================
+    // دالة مساعدة لعرض الصورة الحقيقية للمنتج أو الأيقونة كبديل آمن
+    // =========================================================================
+    function renderProductVisual(product, sizeClass = "w-20 h-20") {
+      const fallbackSvg = PRODUCT_ICONS[product.iconKey] || PRODUCT_ICONS.honey;
+      if (product.imageUrl) {
+        return `
+          <img 
+            src="${product.imageUrl}" 
+            alt="${product.name}" 
+            class="${sizeClass} object-cover rounded-2xl"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          />
+          <div style="display:none;" class="w-full h-full items-center justify-center">${fallbackSvg}</div>
+        `;
+      }
+      return fallbackSvg;
+    }
+
+    // =========================================================================
+    // نظام الإشعارات المخصص (بديل alert)
+    // =========================================================================
+    let toastTimer = null;
+    function showToast(message, icon = "✅") {
+      const box = document.getElementById("toastBox");
+      document.getElementById("toastMessage").textContent = message;
+      document.getElementById("toastIcon").textContent = icon;
+      box.classList.remove("hidden");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        box.classList.add("hidden");
+      }, 2800);
+    }
+
+    // =========================================================================
+    // توليد التصنيفات وعرض المنتجات (تظهر فقط المنتجات غير المخفية للعملاء)
+    // =========================================================================
+    function getVisibleProducts() {
+      return PRODUCTS.filter(p => !p.hidden);
+    }
+
+    function renderCategories() {
+      const visible = getVisibleProducts();
+      const categories = ["الكل", ...new Set(visible.map(p => p.category))];
+      if (!categories.includes(activeCategory)) activeCategory = "الكل";
+
+      const container = document.getElementById("categoryFilters");
+      container.innerHTML = categories.map(cat => {
+        const isActive = cat === activeCategory;
+        return `
+          <button 
+            onclick="selectCategory('${cat}')" 
+            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition ${
+              isActive 
+                ? 'bg-olive-700 text-white shadow-sm' 
+                : 'bg-white text-olive-800 border border-olive-200 hover:bg-olive-50'
+            }"
+          >
+            ${cat}
+          </button>
+        `;
+      }).join("");
+    }
+
+    function selectCategory(category) {
+      activeCategory = category;
+      renderCategories();
+      filterProducts();
+    }
+
+    function resetFilters() {
+      activeCategory = "الكل";
+      document.getElementById("searchInput").value = "";
+      renderCategories();
+      filterProducts();
+    }
+
+    function filterProducts() {
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const filtered = getVisibleProducts().filter(p => {
+        const matchCat = activeCategory === "الكل" || p.category === activeCategory;
+        const matchSearch = p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query);
+        return matchCat && matchSearch;
+      });
+      renderProducts(filtered);
+    }
+
+    function renderProducts(list) {
+      const grid = document.getElementById("productsGrid");
+      const emptyState = document.getElementById("emptySearchState");
+
+      if (list.length === 0) {
+        grid.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+      grid.innerHTML = list.map(product => {
+        const qtyInCart = cart[product.id] || 0;
+        const visualHtml = renderProductVisual(product, "w-full h-full");
+        const bgAccent = ICON_BG_MAP[product.iconKey] || "bg-amber-50";
+
+        return `
+          <article class="bg-white rounded-2xl border border-olive-100 shadow-xs hover:shadow-md transition p-4 flex flex-col justify-between">
+            <div>
+              <!-- الجزء العلوي: الصورة الحقيقية أو الأيقونة والشارة -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="w-20 h-20 rounded-2xl ${bgAccent} border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden">
+                  ${visualHtml}
+                </div>
+                <div class="flex flex-col items-end gap-1.5">
+                  <span class="bg-olive-50 text-olive-700 border border-olive-200 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+                    ${product.badge || 'طبيعي'}
+                  </span>
+                  <span class="text-xs text-gray-500 font-semibold bg-gray-100 px-2 py-0.5 rounded-md">
+                    ${product.weight || ''}
+                  </span>
+                </div>
+              </div>
+
+              <!-- اسم ووصف المنتج -->
+              <h3 class="text-lg font-extrabold text-olive-900 mt-3">${product.name}</h3>
+              <p class="text-xs text-gray-600 leading-relaxed mt-1">${product.description}</p>
+            </div>
+
+            <!-- السعر وأزرار التحكم بالكمية -->
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+              <div>
+                <span class="text-xs text-gray-400 block">السعر</span>
+                <span class="text-lg font-extrabold text-olive-800">${product.price} <small class="text-xs font-bold">${STORE_CONFIG.currency}</small></span>
+              </div>
+
+              ${qtyInCart === 0 ? `
+                <button 
+                  onclick="addToCart(${product.id})" 
+                  class="bg-amberGold-500 hover:bg-amberGold-600 active:scale-95 transition text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-xs flex items-center gap-1.5"
+                >
+                  <span>+ أضف للسلة</span>
+                </button>
+              ` : `
+                <div class="flex items-center gap-2 bg-olive-50 border border-olive-200 rounded-xl p-1">
+                  <button onclick="updateQty(${product.id}, -1)" class="w-8 h-8 rounded-lg bg-white text-olive-800 font-extrabold shadow-2xs hover:bg-gray-100 active:scale-90">-</button>
+                  <span class="w-6 text-center font-extrabold text-olive-900 text-sm">${qtyInCart}</span>
+                  <button onclick="updateQty(${product.id}, 1)" class="w-8 h-8 rounded-lg bg-olive-700 text-white font-extrabold shadow-2xs hover:bg-olive-800 active:scale-90">+</button>
+                </div>
+              `}
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    // =========================================================================
+    // إدارة سلة المشتريات (Cart Logic)
+    // =========================================================================
+    function saveCart() {
+      localStorage.setItem('alsayyad_cart', JSON.stringify(cart));
+    }
+
+    function addToCart(productId) {
+      cart[productId] = (cart[productId] || 0) + 1;
+      saveCart();
+      updateCartUI();
+      filterProducts();
+      const prod = PRODUCTS.find(p => p.id === productId);
+      if (prod) showToast(`تمت إضافة "${prod.name}" إلى السلة`, "🛒");
+    }
+
+    function updateQty(productId, delta) {
+      cart[productId] = (cart[productId] || 0) + delta;
+      if (cart[productId] <= 0) {
+        delete cart[productId];
+      }
+      saveCart();
+      updateCartUI();
+      filterProducts();
+      renderCartModalItems();
+    }
+
+    function clearCart() {
+      cart = {};
+      saveCart();
+      updateCartUI();
+      filterProducts();
+      renderCartModalItems();
+      showToast("تم إفراغ السلة", "🗑️");
+    }
+
+    function getCartTotals() {
+      let totalItems = 0;
+      let totalPrice = 0;
+      for (const [id, qty] of Object.entries(cart)) {
+        const product = PRODUCTS.find(p => p.id === Number(id));
+        if (product) {
+          totalItems += qty;
+          totalPrice += product.price * qty;
+        }
+      }
+      return { totalItems, totalPrice };
+    }
+
+    function updateCartUI() {
+      const { totalItems, totalPrice } = getCartTotals();
+      const badge = document.getElementById("headerCartBadge");
+      const barCount = document.getElementById("barCountText");
+      const barTotal = document.getElementById("barTotalPrice");
+      const modalTotal = document.getElementById("modalTotalPrice");
+
+      if (totalItems > 0) {
+        badge.textContent = totalItems;
+        badge.classList.remove("hidden");
+      } else {
+        badge.classList.add("hidden");
+      }
+
+      barCount.textContent = `${totalItems} ${totalItems === 1 ? 'منتج' : 'منتجات'}`;
+      barTotal.textContent = `${totalPrice} ${STORE_CONFIG.currency}`;
+      modalTotal.textContent = `${totalPrice} ${STORE_CONFIG.currency}`;
+    }
+
+    function openCartModal() {
+      renderCartModalItems();
+      document.getElementById("cartModal").classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeCartModal() {
+      document.getElementById("cartModal").classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
+    function renderCartModalItems() {
+      const container = document.getElementById("cartItemsContainer");
+      const clearBtn = document.getElementById("clearCartBtn");
+      const entries = Object.entries(cart);
+
+      if (entries.length === 0) {
+        clearBtn.classList.add("hidden");
+        container.innerHTML = `
+          <div class="text-center py-6 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+            <p class="text-gray-500 font-bold text-sm">سلة المشتريات فارغة حالياً</p>
+            <p class="text-xs text-gray-400 mt-1">اختر منتجاتك المفضلة من قائمة الصياد</p>
+          </div>
+        `;
+        return;
+      }
+
+      clearBtn.classList.remove("hidden");
+      container.innerHTML = entries.map(([id, qty]) => {
+        const product = PRODUCTS.find(p => p.id === Number(id));
+        if (!product) return "";
+        const subtotal = product.price * qty;
+        const visualHtml = renderProductVisual(product, "w-full h-full");
+
+        return `
+          <div class="flex items-center justify-between gap-3 bg-ivory p-3 rounded-xl border border-olive-100">
+            <div class="flex items-center gap-2.5">
+              <div class="w-11 h-11 rounded-lg bg-white border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden ${product.imageUrl ? '' : 'scale-75'}">
+                ${visualHtml}
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-olive-900">${product.name}</h4>
+                <p class="text-xs text-gray-500">${product.price} × ${qty} = <strong class="text-olive-700">${subtotal} ${STORE_CONFIG.currency}</strong></p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button onclick="updateQty(${product.id}, -1)" class="w-7 h-7 rounded-lg bg-white border border-gray-200 font-bold text-olive-800 hover:bg-gray-100">-</button>
+              <span class="w-5 text-center text-xs font-extrabold">${qty}</span>
+              <button onclick="updateQty(${product.id}, 1)" class="w-7 h-7 rounded-lg bg-olive-700 text-white font-bold hover:bg-olive-800">+</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // =========================================================================
+    // إرسال الطلب عبر واتساب
+    // =========================================================================
+    function checkoutViaWhatsApp() {
+      const { totalItems, totalPrice } = getCartTotals();
+      if (totalItems === 0) {
+        showToast("أضف منتجاً واحداً على الأقل للسلة أولاً", "⚠️");
+        return;
+      }
+
+      const name = document.getElementById("custName").value.trim();
+      const phone = document.getElementById("custPhone").value.trim();
+      const address = document.getElementById("custAddress").value.trim();
+      const notes = document.getElementById("custNotes").value.trim();
+
+      if (!name || !phone || !address) {
+        showToast("يرجى كتابة الاسم ورقم الهاتف والعنوان للتوصيل", "⚠️");
+        return;
+      }
+
+      localStorage.setItem('alsayyad_customer', JSON.stringify({ name, phone, address }));
+
+      let messageLines = [
+        `🌿 *طلب جديد من تطبيق ${STORE_CONFIG.name}* 🌿`,
+        `━━━━━━━━━━━━━━━━━━━━`,
+        `*المنتجات المطلوبة:*`
+      ];
+
+      for (const [id, qty] of Object.entries(cart)) {
+        const p = PRODUCTS.find(item => item.id === Number(id));
+        if (p) {
+          messageLines.push(`▪️ ${p.name} (${p.weight || ''}) × ${qty} = *${p.price * qty} ${STORE_CONFIG.currency}*`);
+        }
+      }
+
+      messageLines.push(`━━━━━━━━━━━━━━━━━━━━`);
+      messageLines.push(`💰 *الإجمالي المطلوب:* ${totalPrice} ${STORE_CONFIG.currency}`);
+      messageLines.push(`━━━━━━━━━━━━━━━━━━━━`);
+      messageLines.push(`👤 *الاسم:* ${name}`);
+      messageLines.push(`📱 *الهاتف:* ${phone}`);
+      messageLines.push(`📍 *العنوان:* ${address}`);
+      if (notes) {
+        messageLines.push(`📝 *ملاحظات:* ${notes}`);
+      }
+
+      const encodedText = encodeURIComponent(messageLines.join("\n"));
+      const whatsappUrl = `https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodedText}`;
+      window.open(whatsappUrl, "_blank");
+    }
+
+    // =========================================================================
+    // منطق وضع الأونر المخفي (5 ضغطات على الشعار + الرقم السري 5555)
+    // =========================================================================
+    function handleLogoTap() {
+      if (isOwnerAuthenticated) {
+        openOwnerModal();
+        return;
+      }
+
+      logoTapCount++;
+      clearTimeout(logoTapTimer);
+      logoTapTimer = setTimeout(() => {
+        logoTapCount = 0;
+      }, 2000);
+
+      if (logoTapCount >= 5) {
+        logoTapCount = 0;
+        openPinModal();
+      }
+    }
+
+    function openPinModal() {
+      const input = document.getElementById("ownerPinInput");
+      input.value = "";
+      document.getElementById("pinModal").classList.remove("hidden");
+      setTimeout(() => input.focus(), 100);
+    }
+
+    function closePinModal() {
+      document.getElementById("pinModal").classList.add("hidden");
+    }
+
+    function verifyOwnerPin() {
+      const entered = document.getElementById("ownerPinInput").value.trim();
+      if (entered === OWNER_PIN) {
+        isOwnerAuthenticated = true;
+        sessionStorage.setItem('alsayyad_owner', 'true');
+        closePinModal();
+        applyOwnerUIState();
+        openOwnerModal();
+        showToast("أهلاً بك يا أونر الصياد! تم تفعيل وضع الإدارة", "👑");
+      } else {
+        showToast("الرقم السري غير صحيح!", "❌");
+        document.getElementById("ownerPinInput").value = "";
+      }
+    }
+
+    function applyOwnerUIState() {
+      const dashBtn = document.getElementById("ownerDashboardBtn");
+      const pill = document.getElementById("ownerActivePill");
+      if (isOwnerAuthenticated) {
+        dashBtn.classList.remove("hidden");
+        dashBtn.classList.add("flex");
+        pill.classList.remove("hidden");
+      } else {
+        dashBtn.classList.add("hidden");
+        dashBtn.classList.remove("flex");
+        pill.classList.add("hidden");
+      }
+    }
+
+    function logoutOwnerMode() {
+      isOwnerAuthenticated = false;
+      sessionStorage.removeItem('alsayyad_owner');
+      closeOwnerModal();
+      applyOwnerUIState();
+      showToast("تم الخروج من وضع الأونر والعودة لواجهة العميل", "🔒");
+    }
+
+    function openOwnerModal() {
+      if (!isOwnerAuthenticated) return;
+      document.getElementById("ownerWhatsappInput").value = STORE_CONFIG.whatsappNumber;
+      resetProductForm();
+      renderOwnerProductsList();
+      document.getElementById("ownerModal").classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeOwnerModal() {
+      document.getElementById("ownerModal").classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
+    function saveOwnerWhatsapp() {
+      const val = document.getElementById("ownerWhatsappInput").value.trim().replace(/\+/g, '');
+      if (!val || val.length < 8) {
+        showToast("يرجى إدخال رقم واتساب صحيح بكود الدولة", "⚠️");
+        return;
+      }
+      STORE_CONFIG.whatsappNumber = val;
+      localStorage.setItem('alsayyad_config', JSON.stringify(STORE_CONFIG));
+      showToast("تم حفظ رقم الواتساب الجديد بنجاح", "✅");
+    }
+
+    // تصدير نسخة HTML مستقلة مدمج بها رقم الواتساب والمنتجات المعدلة لتحويلها مباشرة إلى APK
+    function exportReadyAppFile() {
+      let fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      const customInitScript = `<script>
+        localStorage.setItem('alsayyad_config', ${JSON.stringify(JSON.stringify(STORE_CONFIG))});
+        localStorage.setItem('alsayyad_products', ${JSON.stringify(JSON.stringify(PRODUCTS))});
+      <\/script>`;
+      fullHtml = fullHtml.replace("</head>", customInitScript + "\n</head>");
+      const blob = new Blob([fullHtml], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "index.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("تم تنزيل ملف index.html الجاهز بإعداداتك!", "📥");
+    }
+
+    function renderOwnerProductsList() {
+      document.getElementById("ownerProductsCount").textContent = PRODUCTS.length;
+      const container = document.getElementById("ownerProductsList");
+
+      container.innerHTML = PRODUCTS.map(p => {
+        const visualHtml = renderProductVisual(p, "w-full h-full");
+        return `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border ${p.hidden ? 'bg-gray-100 border-gray-300 opacity-75' : 'bg-ivory border-olive-200'}">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white border border-olive-100 flex items-center justify-center shrink-0 overflow-hidden ${p.imageUrl ? '' : 'scale-75'}">
+                ${visualHtml}
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-extrabold text-sm text-olive-900">${p.name}</h4>
+                  ${p.hidden ? '<span class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">مخفي عن العملاء</span>' : ''}
+                </div>
+                <p class="text-xs text-gray-600">${p.category} • <strong class="text-olive-800">${p.price} ${STORE_CONFIG.currency}</strong> (${p.weight || '-'})</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 self-end sm:self-center">
+              <button onclick="editProductInOwner(${p.id})" class="px-3 py-1.5 bg-olive-700 hover:bg-olive-800 text-white text-xs font-bold rounded-lg transition">تعديل</button>
+              <button onclick="toggleHideProduct(${p.id})" class="px-3 py-1.5 bg-amberGold-500 hover:bg-amberGold-600 text-white text-xs font-bold rounded-lg transition">${p.hidden ? 'إظهار' : 'إخفاء'}</button>
+              <button onclick="deleteProductInOwner(${p.id})" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition">حذف</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function toggleHideProduct(id) {
+      const p = PRODUCTS.find(item => item.id === id);
+      if (!p) return;
+      p.hidden = !p.hidden;
+      saveProductsToStorage();
+      renderOwnerProductsList();
+      renderCategories();
+      filterProducts();
+      showToast(p.hidden ? `تم إخفاء "${p.name}" عن العملاء` : `تم إظهار "${p.name}" للعملاء`, "👁️");
+    }
+
+    function deleteProductInOwner(id) {
+      const p = PRODUCTS.find(item => item.id === id);
+      if (!p) return;
+      PRODUCTS = PRODUCTS.filter(item => item.id !== id);
+      delete cart[id];
+      saveCart();
+      saveProductsToStorage();
+      renderOwnerProductsList();
+      renderCategories();
+      filterProducts();
+      updateCartUI();
+      showToast(`تم حذف "${p.name}" نهائياً`, "🗑️");
+    }
+
+    function restoreDefaultProducts() {
+      PRODUCTS = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+      saveProductsToStorage();
+      renderOwnerProductsList();
+      renderCategories();
+      filterProducts();
+      updateCartUI();
+      showToast("تمت استعادة قائمة منتجات الصياد الافتراضية", "🔄");
+    }
+
+    // =========================================================================
+    // معالجة رفع وضغط صورة المنتج الحقيقية في لوحة الأونر
+    // =========================================================================
+    function handleProductImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          // تصغير وضغط الصورة تلقائياً لتكون خفيفة وسريعة في التخزين
+          const canvas = document.createElement("canvas");
+          const MAX_SIZE = 320;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height && width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
+          } else if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          currentUploadedImage = canvas.toDataURL("image/jpeg", 0.78);
+          document.getElementById("prodImageUrlInput").value = "";
+          showImagePreview(currentUploadedImage);
+          showToast("تم تجهيز صورة المنتج بنجاح", "📸");
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function previewProductImageUrl() {
+      const url = document.getElementById("prodImageUrlInput").value.trim();
+      currentUploadedImage = url;
+      if (url) {
+        showImagePreview(url);
+      } else {
+        clearProductImage();
+      }
+    }
+
+    function showImagePreview(src) {
+      document.getElementById("prodImagePreview").src = src;
+      document.getElementById("prodImagePreviewWrap").classList.remove("hidden");
+      document.getElementById("clearProdImageBtn").classList.remove("hidden");
+    }
+
+    function clearProductImage() {
+      currentUploadedImage = "";
+      document.getElementById("prodImageFileInput").value = "";
+      document.getElementById("prodImageUrlInput").value = "";
+      document.getElementById("prodImagePreviewWrap").classList.add("hidden");
+      document.getElementById("clearProdImageBtn").classList.add("hidden");
+    }
+
+    function saveProductFromOwner() {
+      const editId = document.getElementById("editProductId").value;
+      const name = document.getElementById("prodNameInput").value.trim();
+      const price = Number(document.getElementById("prodPriceInput").value);
+      const category = document.getElementById("prodCategoryInput").value.trim() || "منتجات الصياد";
+      const weight = document.getElementById("prodWeightInput").value.trim();
+      const badge = document.getElementById("prodBadgeInput").value.trim() || "طبيعي 100%";
+      const iconKey = document.getElementById("prodIconSelect").value;
+      const description = document.getElementById("prodDescInput").value.trim() || "منتج طبيعي مختار بعناية من الصياد.";
+      const imageUrl = currentUploadedImage;
+
+      if (!name || !price || price <= 0) {
+        showToast("يرجى كتابة اسم المنتج وسعره بشكل صحيح", "⚠️");
+        return;
+      }
+
+      if (editId) {
+        const idx = PRODUCTS.findIndex(p => p.id === Number(editId));
+        if (idx !== -1) {
+          PRODUCTS[idx] = { ...PRODUCTS[idx], name, price, category, weight, badge, iconKey, description, imageUrl };
+          showToast(`تم تعديل "${name}" بنجاح`, "✅");
+        }
+      } else {
+        const newId = PRODUCTS.length > 0 ? Math.max(...PRODUCTS.map(p => p.id)) + 1 : 1;
+        PRODUCTS.unshift({
+          id: newId,
+          name,
+          price,
+          category,
+          weight,
+          badge,
+          iconKey,
+          description,
+          imageUrl,
+          hidden: false
+        });
+        showToast(`تمت إضافة "${name}" للمتجر`, "🎉");
+      }
+
+      saveProductsToStorage();
+      resetProductForm();
+      renderOwnerProductsList();
+      renderCategories();
+      filterProducts();
+      updateCartUI();
+    }
+
+    function editProductInOwner(id) {
+      const p = PRODUCTS.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById("editProductId").value = p.id;
+      document.getElementById("prodNameInput").value = p.name;
+      document.getElementById("prodPriceInput").value = p.price;
+      document.getElementById("prodCategoryInput").value = p.category;
+      document.getElementById("prodWeightInput").value = p.weight || "";
+      document.getElementById("prodBadgeInput").value = p.badge || "";
+      document.getElementById("prodIconSelect").value = p.iconKey || "honey";
+      document.getElementById("prodDescInput").value = p.description || "";
+
+      if (p.imageUrl) {
+        currentUploadedImage = p.imageUrl;
+        if (p.imageUrl.startsWith("http")) {
+          document.getElementById("prodImageUrlInput").value = p.imageUrl;
+        }
+        showImagePreview(p.imageUrl);
+      } else {
+        clearProductImage();
+      }
+
+      document.getElementById("formProductTitle").textContent = `✏️ تعديل: ${p.name}`;
+      document.getElementById("saveProductBtn").textContent = "حفظ التعديلات";
+      document.getElementById("cancelEditBtn").classList.remove("hidden");
+
+      document.getElementById("ownerModal").querySelector(".overflow-y-auto").scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetProductForm() {
+      document.getElementById("editProductId").value = "";
+      document.getElementById("prodNameInput").value = "";
+      document.getElementById("prodPriceInput").value = "";
+      document.getElementById("prodCategoryInput").value = "";
+      document.getElementById("prodWeightInput").value = "";
+      document.getElementById("prodBadgeInput").value = "";
+      document.getElementById("prodIconSelect").value = "honey";
+      document.getElementById("prodDescInput").value = "";
+      clearProductImage();
+
+      document.getElementById("formProductTitle").textContent = "➕ إضافة منتج جديد";
+      document.getElementById("saveProductBtn").textContent = "حفظ وإضافة المنتج للمتجر";
+      document.getElementById("cancelEditBtn").classList.add("hidden");
+    }
+
+    // =========================================================================
+    // تهيئة التطبيق عند التحميل
+    // =========================================================================
+    window.addEventListener("DOMContentLoaded", () => {
+      try {
+        const savedCustomer = JSON.parse(localStorage.getItem('alsayyad_customer'));
+        if (savedCustomer) {
+          document.getElementById("custName").value = savedCustomer.name || "";
+          document.getElementById("custPhone").value = savedCustomer.phone || "";
+          document.getElementById("custAddress").value = savedCustomer.address || "";
+        }
+      } catch (e) {}
+
+      applyOwnerUIState();
+      renderCategories();
+      filterProducts();
+      updateCartUI();
+    });
+  </script>
+
+</body></html>
